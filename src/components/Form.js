@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from "react";
+import {v4 as uuid} from "uuid";
 
-const Form = () => {
+const Form = ({createAppointment}) => {
   const [appointment, updateAppointment] = useState({
     pet: "",
     owner: "",
@@ -8,6 +9,8 @@ const Form = () => {
     discharge_time: "",
     symptoms: "",
   });
+
+  const [error, updateError] = useState(false)
 
   const handleChange = e => {
     updateAppointment({
@@ -18,10 +21,37 @@ const Form = () => {
 
   const {pet, owner, discharge_date, discharge_time, symptoms} = appointment
 
+  const submitAppointment = e => {
+    e.preventDefault();
+    //validate that every field has something
+    if(pet.trim() === '' || owner.trim() === '' || discharge_date.trim() === '' || discharge_time.trim === '' || symptoms.trim() === '') {
+      updateError(true);
+      return;
+    }
+    //when is validated, remove the warning
+    updateError(false);
+    //create an id for every appointment
+    appointment.id = uuid();
+    //create appointment 
+    createAppointment(appointment)
+    //update form 
+    updateAppointment({
+      pet: "",
+      owner: "",
+      discharge_date: "",
+      discharge_time: "",
+      symptoms: "",
+    })
+
+  }
+
   return (
     <Fragment>
       <h2>Crear cita</h2>
-      <form>
+      { error ? <p className="alerta-error" >Todos los campos son obligatorios</p> : null }
+      <form
+        onSubmit={submitAppointment}
+      >
         <label>Nombre Mascota</label>
         <input
           type="text"
